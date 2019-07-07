@@ -17,7 +17,7 @@ namespace IdentityDemo
             using (var connection = GetOpenConnection())
             {
                 await connection.ExecuteAsync(
-                    "insert into PluralsightUsers([Id]," +
+                    "insert into DemoUsers([Id]," +
                     "[UserName]," +
                     "[NormalizedUserName]," +
                     "[PasswordHash])" +

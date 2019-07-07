@@ -34,7 +34,7 @@ namespace IdentityDemo
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddIdentityCore<string>(options => { });
+            services.AddIdentityCore<DemoUser>(options => { });
             services.AddScoped<IUserStore<DemoUser>, DemoUserStore>();
         }
 
