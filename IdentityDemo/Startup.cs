@@ -46,12 +46,23 @@ namespace IdentityDemo
             services.AddDbContext<DemoUserDbContext>(opt => opt.UseSqlServer(connectionString,
                 sql => sql.MigrationsAssembly(migrationsAssembly)));
 
-            services.AddIdentityCore<DemoUser>(options => { });
-            services.AddScoped<IUserStore<DemoUser>, 
-                UserOnlyStore<DemoUser, DemoUserDbContext>>();
+            services.AddIdentity<DemoUser, IdentityRole>(options =>
+            {
+                options.Tokens.EmailConfirmationTokenProvider = "emailconf";
+            })
+            .AddEntityFrameworkStores<DemoUserDbContext>()
+            .AddDefaultTokenProviders()
+            .AddTokenProvider<EmailConfirmationTokenProvider<DemoUser>>("emailconf");
 
-            services.AddAuthentication("cookies")
-                .AddCookie("cookies", options => options.LoginPath = "/Home/Login");
+            services.AddScoped<IUserClaimsPrincipalFactory<DemoUser>,
+                DemoUserClaimsPrincipalFactory>();
+
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+                options.TokenLifespan = TimeSpan.FromHours(3));
+            services.Configure<EmailConfirmationTokenProviderOptions>(options =>
+               options.TokenLifespan = TimeSpan.FromDays(2));
+
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
