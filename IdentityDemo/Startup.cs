@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,8 +37,18 @@ namespace IdentityDemo
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            var connectionString =
+                @"Data Source=(LocalDb)\MSSQLLocalDB;database=DemoDatabase.DemoUser;trusted_connection=yes;";
+
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+
+            services.AddDbContext<DemoUserDbContext>(opt => opt.UseSqlServer(connectionString,
+                sql => sql.MigrationsAssembly(migrationsAssembly)));
+
             services.AddIdentityCore<DemoUser>(options => { });
-            services.AddScoped<IUserStore<DemoUser>, DemoUserStore>();
+            services.AddScoped<IUserStore<DemoUser>, 
+                UserOnlyStore<DemoUser, DemoUserDbContext>>();
 
             services.AddAuthentication("cookies")
                 .AddCookie("cookies", options => options.LoginPath = "/Home/Login");
