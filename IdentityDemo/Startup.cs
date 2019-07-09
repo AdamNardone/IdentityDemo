@@ -49,10 +49,16 @@ namespace IdentityDemo
             services.AddIdentity<DemoUser, IdentityRole>(options =>
             {
                 options.Tokens.EmailConfirmationTokenProvider = "emailconf";
+
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredUniqueChars = 4;
+
+                options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<DemoUserDbContext>()
             .AddDefaultTokenProviders()
-            .AddTokenProvider<EmailConfirmationTokenProvider<DemoUser>>("emailconf");
+            .AddTokenProvider<EmailConfirmationTokenProvider<DemoUser>>("emailconf")
+            .AddPasswordValidator<DoesNotContainPasswordValidator<DemoUser>>();
 
             services.AddScoped<IUserClaimsPrincipalFactory<DemoUser>,
                 DemoUserClaimsPrincipalFactory>();
